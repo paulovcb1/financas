@@ -1,11 +1,14 @@
-const API_URL = '/api';
+const API_URL = 'http://localhost:5100/api';
 
 export const saveUserData = async (userData: any) => {
   try {
     console.log('Sending user data:', userData);
     
-    const response = await fetch(`${API_URL}/users`, {
-      method: 'POST',
+    const method = userData._id ? 'PUT' : 'POST'; // Usa PUT se _id existir
+    const url = userData._id ? `${API_URL}/users/${userData._id}` : `${API_URL}/users`;
+    
+    const response = await fetch(url, {
+      method,
       headers: {
         'Content-Type': 'application/json',
       },

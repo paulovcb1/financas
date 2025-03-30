@@ -1,6 +1,8 @@
 export interface UserData {
+  id ?: string;
   name: string;
   age: number;
+  phone: string;
   monthlyIncome: number;
   fixedExpenses: number;
   variableExpenses: number;

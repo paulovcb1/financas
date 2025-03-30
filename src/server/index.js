@@ -68,6 +68,25 @@ app.get('/api/users/:id', async (req, res) => {
   }
 });
 
+app.put('/api/users/:userId', async (req, res) => {
+  try {
+    console.log('Updating user data:', req.body);
+    const user = await User.findByIdAndUpdate(
+      req.params.userId, // Usa _id como string
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log('User updated successfully:', user);
+    res.json(user);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(400).json({ error: error.message || 'Failed to update user data' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

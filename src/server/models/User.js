@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
+  phone:{
+    type: String,
+    required: false,
+  },
   name: {
     type: String,
     required: true,
