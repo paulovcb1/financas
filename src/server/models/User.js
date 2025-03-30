@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
   creditCard: {
     uses: {
       type: String,
-      default: "Sim",
+      default: true,
     },
     monthlySpending: {
       type: Number,

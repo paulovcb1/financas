@@ -10,6 +10,7 @@ export const ChatContainer: React.FC = () => {
   const [input, setInput] = React.useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, addMessage, currentStep, nextStep, updateUserData } = useChatStore();
+  const { normalizeInput } = useNormalizedInput();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -28,8 +29,6 @@ export const ChatContainer: React.FC = () => {
     }
   }, []);
 
-  const { normalizeInput } = useNormalizedInput();
-
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -39,16 +38,23 @@ export const ChatContainer: React.FC = () => {
     });
 
     switch (currentStep) {
-      case 0:
-        updateUserData({ name: input });
+      case 0: //nome 
+      const nome = input.trim();
+        if (!isNaN(Number(nome))) {
+          addMessage({ type: 'bot', content: 'Por favor, insira um nome válido.' });
+          setInput('');
+          return;
+        }
+        updateUserData({ name: input.trim() });
         addMessage({
           type: 'bot',
-          content: `Prazer em conhecer você, ${input}! Qual é a sua idade?`,
+          content: `Prazer em conhecer você, ${input.trim()}! Qual é a sua idade?`
         });
         break;
-      case 1:
+
+      case 1: // idade  normalizacao via api open ia
         let age = parseInt(input);
-        if (isNaN(age)) {
+        if (isNaN(age) || age <= 0) {
           const normalizedInput = await normalizeInput(input);
           age = parseInt(normalizedInput);
 
@@ -73,9 +79,9 @@ export const ChatContainer: React.FC = () => {
         });
         break;
 
-      case 2: // Renda Mensal
+      case 2: // Renda Mensal // normalizacao via api open ia
         let monthlyIncome = parseFloat(input);
-        if (isNaN(monthlyIncome)) {
+        if (isNaN(monthlyIncome) || monthlyIncome <= 0) {
           const normalizedInput = await normalizeInput(input);
           monthlyIncome = parseFloat(normalizedInput);
 
@@ -100,13 +106,13 @@ export const ChatContainer: React.FC = () => {
         });
 
         break;
-      case 3:
-        if (input.toLowerCase() === 'sim') {
+      case 3: // Cartão de Crédito
+        if (input.trim().toLocaleLowerCase() === 'sim') {
           addMessage({
             type: 'bot',
             content: 'Ótimo! Agora, qual é o seu gasto mensal com cartão de crédito?',
           });
-        } else if (input.toLowerCase() === 'não' || input.toLowerCase() === 'nao') {
+        } else if (input.trim().toLowerCase() === 'não' || input.trim().toLowerCase() === 'nao') {
           updateUserData({ creditCard: { uses: false } });
           addMessage({
             type: 'bot',
@@ -119,16 +125,19 @@ export const ChatContainer: React.FC = () => {
           });
         }
         break;
-      case 4:
-        const creditCardExpenses = parseFloat(input);
-        if (isNaN(creditCardExpenses)) {
-          addMessage({
-            type: 'bot',
-            content: 'Por favor, digite apenas números para suas despesas com cartão de crédito.',
-          });
-          return;
+      case 4: //gasto cartao de credito mensal
+        {
+          const creditCardExpenses = parseFloat(input);
+          if (isNaN(creditCardExpenses) || creditCardExpenses <= 0) {
+            addMessage({
+              type: 'bot',
+              content: 'Por favor, digite apenas números para suas despesas com cartão de crédito.',
+            });
+            return;
+          }
+          updateUserData({ creditCard: { uses: true, monthlySpending: creditCardExpenses } });
+          break;
         }
-        updateUserData({ creditCard: { uses: true, monthlySpending: creditCardExpenses } });
     }
 
     nextStep();
