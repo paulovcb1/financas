@@ -4,13 +4,22 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-gray-50 to-gray-100;
+    @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 }
 
 @layer components {
   .glass-effect {
-    @apply backdrop-blur-xl bg-white/80 border border-white/20;
+    @apply backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-white/20;
   }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
