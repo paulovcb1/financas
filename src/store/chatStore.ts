@@ -6,13 +6,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   userData: {},
   currentStep: 0,
-  addMessage: (message) =>
+  hasSentWelcomeMessage: false,
+  addMessage: (message) => {
+    console.log('addMessage chamado com:', message);
     set((state) => ({
       messages: [
         ...state.messages,
         { ...message, id: Math.random().toString(36).substring(7) },
       ],
-    })),
+    }));
+  },
   updateUserData: (data) =>
     set((state) => ({
       userData: { ...state.userData, ...data },
@@ -49,5 +52,5 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
     },
   nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),
-  resetChat: () => set({ messages: [], userData: {}, currentStep: 0 }),
+  resetChat: () => set({ messages: [], userData: {}, currentStep: 0, hasSentWelcomeMessage: false}),
 }));

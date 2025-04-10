@@ -96,7 +96,7 @@ const mockAlerts: TravelAlert[] = [
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 p-4 md:p-6">
+    <div className="min-h-screen bg-gray-950 p-4 md:p-6 pb-24">
       <div className="max-w-7xl mx-auto space-y-8">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">

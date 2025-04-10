@@ -2,16 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Target, Plus, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useChatStore } from '../store/chatStore';
+import { FinancialGoal } from '../types/financialPlaning'; // Ajuste o caminho conforme necessário
 import axios from 'axios';
 
-interface FinancialGoal {
-  _id: string;
-  userId: string;
-  name: string;
-  targetAmount: number;
-  months: number;
-  savedAmount: number;
-}
 
 const FinancialPlanning: React.FC = () => {
   const { userData } = useChatStore();
@@ -30,7 +23,7 @@ const FinancialPlanning: React.FC = () => {
   useEffect(() => {
     const fetchGoals = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/financial-goals', {
+        const response = await axios.get('http://localhost:5000/api/financial-goals', {  // essa API ainda nao existe
           params: { userId: userData.id },
         });
         setGoals(response.data);
@@ -64,15 +57,15 @@ const FinancialPlanning: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans p-6">
-      <motion.header initial="hidden" animate="visible" variants={fadeIn} className="mb-12">
+    <div className="min-h-screen bg-black text-white font-sans p-6 pb-24">
+      <header className="mb-12">
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
           Planejamento Financeiro, {userData.name || 'Usuário'}!
         </h1>
         <p className="mt-2 text-gray-400">Defina suas metas e acompanhe seu progresso</p>
-      </motion.header>
+      </header>
 
-      <motion.div initial="hidden" animate="visible" variants={fadeIn} className="bg-gray-900/80 p-6 rounded-xl backdrop-blur-md shadow-lg border border-gray-800/50 mb-12">
+      <div className="bg-gray-900/80 p-6 rounded-xl backdrop-blur-md shadow-lg border border-gray-800/50 mb-12">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-gray-400 text-sm">Renda Disponível Mensal</p>
@@ -82,9 +75,9 @@ const FinancialPlanning: React.FC = () => {
           </div>
           <DollarSign className="w-8 h-8 text-green-400" />
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div initial="hidden" animate="visible" variants={fadeIn} className="bg-gray-900/80 p-6 rounded-xl backdrop-blur-md shadow-lg border border-gray-800/50 mb-12">
+      <div className="bg-gray-900/80 p-6 rounded-xl backdrop-blur-md shadow-lg border border-gray-800/50 mb-12">
         <h2 className="text-xl font-semibold mb-4">Adicionar Nova Meta</h2>
         <div className="space-y-4">
           <div>
@@ -120,19 +113,17 @@ const FinancialPlanning: React.FC = () => {
               />
             </div>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={addGoal}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
           >
             <Plus className="w-5 h-5 inline mr-2" />
             Adicionar Meta
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="space-y-6">
+      <div className="space-y-6">
         {goals.length > 0 ? (
           goals.map((goal) => {
             const monthlySavings = goal.targetAmount / goal.months;
@@ -155,11 +146,9 @@ const FinancialPlanning: React.FC = () => {
                   Economizar por mês: R$ {monthlySavings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
                 <div className="mt-4 bg-gray-700 h-2 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className="bg-blue-500 h-full"
+                  <div
+                    className="bg-blue-500 h-full transition-all duration-500 ease-out"
+                    style={{ width: `${progress}%` }}
                   />
                 </div>
                 <p className="text-gray-400 text-sm mt-2">
@@ -171,7 +160,7 @@ const FinancialPlanning: React.FC = () => {
         ) : (
           <p className="text-gray-400 text-center">Nenhuma meta adicionada ainda.</p>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 };

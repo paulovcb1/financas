@@ -23,6 +23,7 @@ export interface ChatState {
   messages: ChatMessage[];
   userData: Partial<UserData>;
   currentStep: number;
+  hasSentWelcomeMessage: boolean;
   addMessage: (message: Omit<ChatMessage, 'id'>) => void;
   updateUserData: (data: Partial<UserData>) => void;
   nextStep: () => void;

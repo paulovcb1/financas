@@ -13,6 +13,7 @@ export const ChatContainer: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { messages, addMessage, currentStep, nextStep, updateUserData, saveUserDataToDB, userData } = useChatStore();
+  const initialMessageSentRef = useRef(false);
   const { normalizeInput } = useNormalizedInput();
 
   const scrollToBottom = () => {
@@ -24,13 +25,15 @@ export const ChatContainer: React.FC = () => {
   }, [messages, isTyping]);
 
   useEffect(() => {
-    if (messages.length === 0) {
+    if (!initialMessageSentRef.current && messages.length === 0) {
+      initialMessageSentRef.current = true;
+  
       const phone = location.state?.phone || userData.phone;
       updateUserData({ phone });
       if (phone) {
         addMessage({
           type: 'bot',
-          content: `Olá! Recebemos seu telefone (${phone}). Como posso te chamar?`,
+          content: `Olá! Recebemos seu telefone ${phone}. Como posso te chamar?`,
         });
       } else {
         addMessage({
@@ -73,22 +76,15 @@ export const ChatContainer: React.FC = () => {
           });
           break;
 
-        case 1: // Idade
+          case 1: // Idade
           let age = parseInt(input);
+        
+          
           if (isNaN(age) || age <= 0) {
             const normalizedInput = await normalizeInput(input);
-            simulateBotTyping(() => {
-              addMessage({
-                type: 'bot',
-                content: 'Não entendi sua idade. Por favor, digite apenas números.',
-              });
-            });
-            addMessage({
-              type: 'bot',
-              content: `Vou considerar que você tem ${age} anos!`,
-            });
             age = parseInt(normalizedInput);
-            if (isNaN(age)) {
+        
+            if (isNaN(age) || age <= 0) {
               simulateBotTyping(() => {
                 addMessage({
                   type: 'bot',
@@ -97,9 +93,17 @@ export const ChatContainer: React.FC = () => {
               });
               return;
             }
-
           }
+        
           updateUserData({ age });
+        
+          simulateBotTyping(() => {
+            addMessage({
+              type: 'bot',
+              content: `Vou considerar que você tem ${age} anos!`,
+            });
+          });
+        
           simulateBotTyping(() => {
             addMessage({
               type: 'bot',
@@ -107,6 +111,7 @@ export const ChatContainer: React.FC = () => {
             });
           });
           break;
+        
 
         case 2: // Renda Mensal
           let monthlyIncome = parseFloat(input);

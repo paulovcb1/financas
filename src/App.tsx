@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { ChatContainer } from './components/ChatContainer';
 import { Dashboard } from './components/DashBoard';
-import LandingPage from './components/LandingPage';
+import LandingPage from './pages/LandingPage';
 import Travel from './pages/Travel';
 import Sidebar from './components/sidebar/SideBar';
 import FinancialPlanning from './pages/FinancialPlaning';
@@ -17,7 +17,7 @@ const App: React.FC = () => {
       {/* Sidebar aparece exceto na LandingPage e Chat */}
       {showSidebar && <Sidebar />}
 
-      {/* Conteúdo Principal */}
+      {/* Conteúdo principal da aplicação */}
       <div
         className={`flex-1 w-full transition-all duration-300 ${
           showSidebar ? 'md:pl-64' : ''
