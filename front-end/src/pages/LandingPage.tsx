@@ -2,30 +2,41 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, CreditCard, Plane, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
+import { checkPhoneNumber } from '../services/api'; // Importa a função de verificação de telefone
 
 const LandingPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  
+  // Validação de telefone (formato brasileiro: (XX) XXXXX-XXXX)
   const validatePhone = (input: string) => {
     const phoneRegex = /^\(\d{2}\)\s\d{5}-\d{4}$/;
     return phoneRegex.test(input);
   };
 
-  
-  const handleSubmit = (e: React.FormEvent) => {
+  // Manipula o envio do formulário com transição fluida
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formattedPhone = phone.replace(/\D/g, '').replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
     setPhone(formattedPhone);
 
-    if (validatePhone(formattedPhone)) {
-      setError('');
-      setTimeout(() => navigate('/chat', { state: { phone: formattedPhone } }), 300); // Transição suave
-    } else {
+    try {
+     
+      await checkPhoneNumber(formattedPhone);
+      setError(''); 
+      toast.success('Número de telefone válido! Redirecionando...');
+      navigate('/chat', { state: { phone: formattedPhone } }); 
+    } catch (error: any) {
+      console.error('Erro ao verificar o telefone:', error.message);
+      setError(error.message || 'Erro ao verificar o telefone. Tente novamente.');
+    } 
+
+    if (!validatePhone(formattedPhone)) {
       setError('Use o formato (XX) XXXXX-XXXX');
-    }
+    } 
+    
   };
 
   // Máscara de entrada e validação em tempo real

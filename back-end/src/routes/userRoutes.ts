@@ -34,9 +34,9 @@ const normalizeUserData = (data: any) => {
   
       const user = await User.create(normalizedData);
   
-      // Transforma o _id em id antes de retornar
+      
       const userWithId = { ...user.toObject(), id: user._id };
-      delete userWithId._id; // Remove o campo _id, se necessário
+      delete userWithId._id; 
   
       res.status(201).json(userWithId);
     } catch (err) {
@@ -49,7 +49,7 @@ const normalizeUserData = (data: any) => {
       const user = await User.findById(req.params.id);
       if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
   
-      // Transforma o _id em id antes de retornar
+      
       const userWithId = { ...user.toObject(), id: user._id };
       delete userWithId._id;
   
@@ -76,6 +76,25 @@ router.put('/:id', async (req, res) => {
       res.status(200).json(userWithId);
     } catch (err) {
       res.status(500).json({ error: 'Erro ao atualizar usuário' });
+    }
+  });
+  router.post('/check-phone', async (req, res) => {
+    try {
+      const normalizedData = normalizeUserData(req.body);
+      const { phone } = req.body;
+  
+      if (!phone) {
+        return res.status(400).json({ error: 'Número de telefone é obrigatório' });
+      }
+  
+      const existingUser = await User.findOne({ phone: normalizedData.phone });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Número de telefone já cadastrado' });
+      }
+  
+      res.status(200).json({ message: 'Número de telefone disponível' });
+    } catch (err) {
+      res.status(500).json({ error: 'Erro ao verificar o telefone' });
     }
   });
 

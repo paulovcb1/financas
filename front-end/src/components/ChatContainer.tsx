@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { ChatMessage } from './ChatMessage';
 import { useChatStore } from '../store/chatStore';
 import { useNormalizedInput } from '../hooks/useNormalizedInput';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const ChatContainer: React.FC = () => {
   const [input, setInput] = React.useState('');

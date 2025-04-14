@@ -2,7 +2,7 @@ const API_URL = 'http://localhost:5100/api';
 
 export const createUser = async (userData: any) => {
     try {
-      console.log('Criando novo usuário com os dados:', userData);
+      console.log('POST: ', userData);
   
       const response = await fetch(`${API_URL}/users`, {
         method: 'POST',
@@ -27,7 +27,7 @@ export const createUser = async (userData: any) => {
 
   export const updateUser = async (userId: string, userData: any) => {
     try {
-      console.log('Atualizando usuário com ID:', userId, 'e dados:', userData);
+      console.log('PUT COM ID:', userId, 'e dados:', userData);
   
       const response = await fetch(`${API_URL}/users/${userId}`, {
         method: 'PUT',
@@ -65,3 +65,26 @@ export const getUserData = async (userId: string) => {
     throw error;
   }
 };
+
+export const checkPhoneNumber = async (phone: string) => {
+    try {
+      const response = await fetch(`${API_URL}/users/check-phone`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao verificar o telefone');
+      }
+  
+      return data;
+    } catch (error) {
+      console.error('Erro ao verificar o telefone:', error);
+      throw error; // Lança o erro para ser tratado na LandingPage
+    }
+  };
