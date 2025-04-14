@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { ChatState, ChatMessage } from '../types/chat';
-import { saveUserData } from '../services/api';
+import { updateUser, createUser, getUserData } from '../services/api';
+
 
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
@@ -8,7 +9,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
   currentStep: 0,
   hasSentWelcomeMessage: false,
   addMessage: (message) => {
-    console.log('addMessage chamado com:', message);
     set((state) => ({
       messages: [
         ...state.messages,
@@ -18,10 +18,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
   updateUserData: (data) =>
     set((state) => ({
-      userData: { ...state.userData, ...data },
+      userData: { ...state.userData, ...data }, // Combina os campos existentes com os editados
     })),
     saveUserDataToDB: async () => {
       const userData = get().userData;
+    
+      // Combine os campos existentes com os campos editados
       const normalizedData = {
         phone: userData.phone ? userData.phone : undefined,
         name: userData.name,
@@ -38,17 +40,40 @@ export const useChatStore = create<ChatState>((set, get) => ({
             }
           : undefined,
       };
-      console.log('userData antes de salvar (normalizado):', normalizedData);
-      if (!normalizedData.name) {
-        throw new Error('Nome do usuário é obrigatório para salvar no banco');
-      }
+    
       try {
-        const savedData = await saveUserData(normalizedData);
+        let savedData;
+        if (userData.id) {
+          // Atualiza o usuário existente
+          savedData = await updateUser(userData.id, userData);
+        } else {
+          // Cria um novo usuário
+          savedData = await createUser(userData);
+        }
+    
         console.log('Dados salvos retornados:', savedData);
-        set({ userData: savedData }); // O _id será adicionado aqui pelo backend
+    
+        // Atualiza o estado com os dados retornados, incluindo o id
+        set((state) => ({
+          userData: { ...state.userData, ...savedData },
+        }));
+    
+        // Salva o ID no localStorage
+        if (savedData.id) {
+          localStorage.setItem('userId', savedData.id);
+        }
       } catch (error) {
         console.error('Failed to save user data:', error);
         throw error;
+      }
+    },
+    fetchUserData: async (userId: string) => {
+      try {
+        const data = await getUserData(userId);
+        console.log('Dados carregados no Zustand:', data); 
+        set({ userData: data }); // Atualiza o estado global com os dados do usuário, incluindo o id
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
       }
     },
   nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),

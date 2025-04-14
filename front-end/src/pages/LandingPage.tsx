@@ -8,13 +8,13 @@ const LandingPage: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Validação de telefone (formato brasileiro: (XX) XXXXX-XXXX)
+  
   const validatePhone = (input: string) => {
     const phoneRegex = /^\(\d{2}\)\s\d{5}-\d{4}$/;
     return phoneRegex.test(input);
   };
 
-  // Manipula o envio do formulário com transição fluida
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formattedPhone = phone.replace(/\D/g, '').replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');

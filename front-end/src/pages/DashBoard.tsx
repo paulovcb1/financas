@@ -4,30 +4,57 @@ import { DollarSign, CreditCard, TrendingUp, PieChart, Edit2 } from 'lucide-reac
 import { useChatStore } from '../store/chatStore';
 import { UserData } from '../types/chat';
 import { FormData } from '../types/dashboard';
-import { FinancialCard } from '../components/dashboard/FinancialCards'; 
-import { EditModal } from '../components/dashboard/EditModal'; 
-
-
+import { FinancialCard } from '../components/dashboard/FinancialCards';
+import { EditModal } from '../components/dashboard/EditModal';
+import { getUserData } from '../services/api'; // Importa a função para buscar os dados da API
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { userData, updateUserData } = useChatStore();
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState<'income' | 'expenses' | null>(null); 
+  const [modalOpen, setModalOpen] = useState<'income' | 'expenses' | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    monthlyIncome: userData.monthlyIncome?.toString() || '',
-    fixedExpenses: userData.fixedExpenses?.toString() || '',
-    variableExpenses: userData.variableExpenses?.toString() || '',
-    creditCardSpending: userData.creditCard?.monthlySpending?.toString() || '',
+    monthlyIncome: '',
+    fixedExpenses: '',
+    variableExpenses: '',
+    creditCardSpending: '',
   });
 
+  // Função para carregar os dados do usuário
   useEffect(() => {
-    setLoading(false);
-  }, [userData]);
+    const loadUserData = async () => {
+      try {
+        const userId = localStorage.getItem('userId'); // Obtém o ID do usuário do localStorage
+        if (!userId) {
+          navigate('/'); 
+          return;
+        }
+
+        const data = await getUserData(userId); 
+        
+        
+        updateUserData(data); 
+        setFormData({
+          monthlyIncome: data.monthlyIncome?.toString() || '',
+          fixedExpenses: data.fixedExpenses?.toString() || '',
+          variableExpenses: data.variableExpenses?.toString() || '',
+          creditCardSpending: data.creditCard?.monthlySpending?.toString() || '',
+        });
+      } catch (error) {
+        console.error('Erro ao carregar os dados do usuário:', error);
+        navigate('/'); 
+      } finally {
+        setLoading(false); 
+      }
+    };
+
+    loadUserData();
+  }, [navigate, updateUserData]);
+
 
   const handleOpenModal = (section: 'income' | 'expenses') => {
     setModalOpen(section);
-    setFormData({ 
+    setFormData({
       monthlyIncome: userData.monthlyIncome?.toString() || '',
       fixedExpenses: userData.fixedExpenses?.toString() || '',
       variableExpenses: userData.variableExpenses?.toString() || '',
@@ -35,10 +62,12 @@ export const Dashboard: React.FC = () => {
     });
   };
 
+
   const handleCloseModal = () => {
     setModalOpen(null);
   };
 
+ 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -47,9 +76,14 @@ export const Dashboard: React.FC = () => {
     }));
   };
 
+  // Função para salvar os dados editados
   const handleSave = async () => {
-    const { saveUserDataToDB } = useChatStore.getState();
-    const updatedData: Partial<UserData> = {};
+    const { saveUserDataToDB, updateUserData, userData } = useChatStore.getState();
+    console.log('Dados do usuário antes de salvar:', userData);
+    const updatedData: Partial<UserData> = {
+      id: userData.id, 
+    };
+  
     if (modalOpen === 'income') {
       updatedData.monthlyIncome = formData.monthlyIncome ? parseFloat(formData.monthlyIncome) : undefined;
     } else if (modalOpen === 'expenses') {
@@ -62,16 +96,18 @@ export const Dashboard: React.FC = () => {
         };
       }
     }
-
+  
     try {
-      updateUserData(updatedData);
-      await saveUserDataToDB();
-      setModalOpen(null);
+      console.log('Dados atualizados antes de salvar:', updatedData);
+      updateUserData(updatedData); // Atualiza o estado global localmente
+      await saveUserDataToDB(); // Salva os dados no banco de dados
+      setModalOpen(null); // Fecha o modal
     } catch (error) {
       console.error('Erro ao salvar no dashboard:', error);
     }
   };
 
+  // Exibe um spinner enquanto os dados estão sendo carregados
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-gray-100">
@@ -80,6 +116,7 @@ export const Dashboard: React.FC = () => {
     );
   }
 
+  // Exibe uma mensagem se os dados do usuário estiverem incompletos
   if (!userData || !userData.name) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-gray-100 px-4">
@@ -99,12 +136,11 @@ export const Dashboard: React.FC = () => {
     );
   }
 
-  const fixedExpensesNum = formData.fixedExpenses ? parseFloat(formData.fixedExpenses) : userData.fixedExpenses || 0;
-  const variableExpensesNum = formData.variableExpenses ? parseFloat(formData.variableExpenses) : userData.variableExpenses || 0;
-  const creditCardSpendingNum = formData.creditCardSpending
-    ? parseFloat(formData.creditCardSpending)
-    : userData.creditCard?.monthlySpending || 0;
-  const monthlyIncomeNum = formData.monthlyIncome ? parseFloat(formData.monthlyIncome) : userData.monthlyIncome || 0;
+  // Cálculos para exibição no dashboard
+  const fixedExpensesNum = parseFloat(formData.fixedExpenses) || userData.fixedExpenses || 0;
+  const variableExpensesNum = parseFloat(formData.variableExpenses) || userData.variableExpenses || 0;
+  const creditCardSpendingNum = parseFloat(formData.creditCardSpending) || userData.creditCard?.monthlySpending || 0;
+  const monthlyIncomeNum = parseFloat(formData.monthlyIncome) || userData.monthlyIncome || 0;
 
   const totalExpenses = fixedExpensesNum + variableExpensesNum + creditCardSpendingNum;
   const availableIncome = monthlyIncomeNum - totalExpenses;

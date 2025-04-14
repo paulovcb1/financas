@@ -3,33 +3,80 @@ import User from '../models/User';
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
-  try {
-    const user = await User.create(req.body);
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(400).json({ error: 'Erro ao criar usuário' });
-  }
-});
+const normalizeUserData = (data: any) => {
+    return {
+      name: data.name?.trim(),
+      phone: data.phone?.replace(/\D/g, ''), // Remove caracteres não numéricos do telefone
+      age: data.age ? Number(data.age) : undefined,
+      monthlyIncome: data.monthlyIncome ? Number(data.monthlyIncome) : undefined,
+      fixedExpenses: data.fixedExpenses ? Number(data.fixedExpenses) : undefined,
+      variableExpenses: data.variableExpenses ? Number(data.variableExpenses) : undefined,
+      creditCard: data.creditCard
+        ? {
+            uses: Boolean(data.creditCard.uses),
+            monthlySpending: data.creditCard.monthlySpending
+              ? Number(data.creditCard.monthlySpending)
+              : undefined,
+          }
+        : undefined,
+    };
+  };
 
-router.get('/:id', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ error: 'Erro ao buscar usuário' });
-  }
-});
+  router.post('/', async (req, res) => {
+    try {
+      const normalizedData = normalizeUserData(req.body);
+      console.log('API post BACK END ESTÁ RECEBENDO ISSO AQUI:', req.body);
+  
+      const existingUser = await User.findOne({ phone: normalizedData.phone });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Número de telefone já cadastrado' });
+      }
+  
+      const user = await User.create(normalizedData);
+  
+      // Transforma o _id em id antes de retornar
+      const userWithId = { ...user.toObject(), id: user._id };
+      delete userWithId._id; // Remove o campo _id, se necessário
+  
+      res.status(201).json(userWithId);
+    } catch (err) {
+      res.status(400).json({ error: 'Erro ao criar usuário' });
+    }
+  });
+
+  router.get('/:id', async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+  
+      // Transforma o _id em id antes de retornar
+      const userWithId = { ...user.toObject(), id: user._id };
+      delete userWithId._id;
+  
+      res.json(userWithId);
+    } catch (err) {
+      res.status(400).json({ error: 'Erro ao buscar usuário' });
+    }
+  });
 
 router.put('/:id', async (req, res) => {
-  try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ error: 'Erro ao atualizar usuário' });
-  }
-});
+    try {
+      const { id } = req.params;
+      const updatedData = req.body;
+  
+      const user = await User.findByIdAndUpdate(id, updatedData, { new: true });
+  
+      if (!user) {
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+  
+      const userWithId = { ...user.toObject(), id: user._id };
+      delete userWithId._id;
+  
+      res.status(200).json(userWithId);
+    } catch (err) {
+      res.status(500).json({ error: 'Erro ao atualizar usuário' });
+    }
+  });
 
 export default router;
