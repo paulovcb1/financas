@@ -4,8 +4,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChatMessage } from './ChatMessage';
 import { useChatStore } from '../store/chatStore';
-import { useNormalizedInput } from '../hooks/useNormalizedInput';
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export const ChatContainer: React.FC = () => {
@@ -16,7 +14,6 @@ export const ChatContainer: React.FC = () => {
   const location = useLocation();
   const { messages, addMessage, currentStep, nextStep, updateUserData, saveUserDataToDB, userData } = useChatStore();
   const initialMessageSentRef = useRef(false);
-  const { normalizeInput } = useNormalizedInput();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,7 +26,7 @@ export const ChatContainer: React.FC = () => {
   useEffect(() => {
     if (!initialMessageSentRef.current && messages.length === 0) {
       initialMessageSentRef.current = true;
-  
+
       const phone = location.state?.phone || userData.phone;
       updateUserData({ phone });
       if (phone) {
@@ -51,6 +48,28 @@ export const ChatContainer: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay de 1 segundo (ajustável)
     setIsTyping(false); // Esconde a animação
     callback(); // Executa a ação do bot após o delay
+  };
+
+  const normalizeInput = async (input: string): Promise<string> => {
+    try {
+      const response = await fetch('http://localhost:5100/api/normalize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ input }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na API de normalização: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.normalizedValue || input;
+    } catch (error) {
+      console.error('Erro ao normalizar entrada:', error);
+      return input;
+    }
   };
 
   const handleSend = async () => {
@@ -78,14 +97,13 @@ export const ChatContainer: React.FC = () => {
           });
           break;
 
-          case 1: // Idade
+        case 1: // Idade
           let age = parseInt(input);
-        
-          
+
           if (isNaN(age) || age <= 0) {
             const normalizedInput = await normalizeInput(input);
             age = parseInt(normalizedInput);
-        
+
             if (isNaN(age) || age <= 0) {
               simulateBotTyping(() => {
                 addMessage({
@@ -96,16 +114,16 @@ export const ChatContainer: React.FC = () => {
               return;
             }
           }
-        
+
           updateUserData({ age });
-        
+
           simulateBotTyping(() => {
             addMessage({
               type: 'bot',
               content: `Vou considerar que você tem ${age} anos!`,
             });
           });
-        
+
           simulateBotTyping(() => {
             addMessage({
               type: 'bot',
@@ -113,19 +131,13 @@ export const ChatContainer: React.FC = () => {
             });
           });
           break;
-        
 
         case 2: // Renda Mensal
           let monthlyIncome = parseFloat(input);
           if (isNaN(monthlyIncome) || monthlyIncome <= 0) {
             const normalizedInput = await normalizeInput(input);
-            simulateBotTyping(() => {
-              addMessage({
-                type: 'bot',
-                content: `Vou considerar que você ganha R$ ${monthlyIncome} por mês!`,
-              });
-            });
             monthlyIncome = parseFloat(normalizedInput);
+
             if (isNaN(monthlyIncome)) {
               simulateBotTyping(() => {
                 addMessage({
@@ -179,13 +191,8 @@ export const ChatContainer: React.FC = () => {
           let creditCardExpenses = parseFloat(input);
           if (isNaN(creditCardExpenses) || creditCardExpenses <= 0) {
             const normalizedInput = await normalizeInput(input);
-            simulateBotTyping(() => {
-              addMessage({
-                type: 'bot',
-                content: `Vou considerar que você gasta R$ ${normalizedInput} por mês com seu cartão de credito!`,
-              });
-            });
             creditCardExpenses = parseFloat(normalizedInput);
+
             if (isNaN(creditCardExpenses) || creditCardExpenses <= 0) {
               simulateBotTyping(() => {
                 addMessage({
