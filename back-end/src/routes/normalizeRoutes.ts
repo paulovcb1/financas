@@ -1,5 +1,5 @@
 import express from 'express';
-import fetch from 'node-fetch'; 
+import axios from 'axios';
 
 const router = express.Router();
 
@@ -14,13 +14,13 @@ router.post('/', async (req, res) => {
   try {
    
     
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await axios.get('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 
       },
-      body: JSON.stringify({
+      data: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: 'Você é um assistente que converte entradas de usuários em números válidos.' },
@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
     console.log(response);
     
 
-    const data = await response.json();
+    const data = response.data;
     const normalizedValue = data.choices?.[0]?.message?.content?.trim();
 
     res.json({ normalizedValue: normalizedValue || input });

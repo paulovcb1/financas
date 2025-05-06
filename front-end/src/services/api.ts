@@ -88,3 +88,11 @@ export const checkPhoneNumber = async (phone: string) => {
       throw error; // Lança o erro para ser tratado na LandingPage
     }
   };
+
+  export const fetchAllUsers = async () => {
+    const response = await fetch(`${API_URL}/users/All-users`);
+    if (!response.ok) {
+      throw new Error('Erro ao buscar usuários');
+    }
+    return response.json();
+  };

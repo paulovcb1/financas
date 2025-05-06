@@ -1,5 +1,5 @@
 import express from 'express';
-import User from '../models/User';
+import User from '../models/user';
 
 const router = express.Router();
 
@@ -43,6 +43,21 @@ const normalizeUserData = (data: any) => {
       res.status(400).json({ error: 'Erro ao criar usuário' });
     }
   });
+  
+  router.get('/all-users', async (req, res) => {
+    try {
+      const users = await User.find({});
+  
+      const usersWithId = users.map(user => {
+        const userObj = user.toObject();
+        return { ...userObj, id: userObj._id };
+      });
+  
+      res.status(200).json(usersWithId);
+    } catch (err) {
+      res.status(500).json({ error: 'Erro ao buscar usuários' });
+    }
+  } );
 
   router.get('/:id', async (req, res) => {
     try {
@@ -97,5 +112,8 @@ router.put('/:id', async (req, res) => {
       res.status(500).json({ error: 'Erro ao verificar o telefone' });
     }
   });
+
+
+    
 
 export default router;

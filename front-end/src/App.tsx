@@ -6,11 +6,12 @@ import LandingPage from './pages/LandingPage';
 import Travel from './pages/Travel';
 import Sidebar from './components/sidebar/SideBar';
 import FinancialPlanning from './pages/FinancialPlaning';
+import {CRM} from './pages/CRM';
 
 const App: React.FC = () => {
   const location = useLocation();
   // Sidebar aparece em todas as rotas, exceto "/" e "/chat"
-  const showSidebar = !['/', '/chat'].includes(location.pathname);
+  const showSidebar = !['/', '/chat', '/crm'].includes(location.pathname);
 
   return (
     <div className="app-container flex min-h-screen bg-black">
@@ -34,6 +35,8 @@ const App: React.FC = () => {
           />
           <Route path="/Travel" element={<Travel />} />
           <Route path="/planning" element={<FinancialPlanning />} />
+          {/* Rota para o CRM */}
+          <Route path="/crm" element={<CRM />} />
           {/* Rota para página não encontrada (opcional) */}
           <Route path="*" element={<NotFound />} />
         </Routes>
