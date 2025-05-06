@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, CreditCard, Plane, Award } from 'lucide-react';
+import { Phone, CreditCard, Plane, Award, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '../services/api'; // Importa a função de verificação de telefone
@@ -77,6 +77,18 @@ const LandingPage: React.FC = () => {
         >
           Comece Sua Jornada
         </motion.button>
+        {/* Botão para acessar o CRM */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate('/crm')} // Navega para o CRM
+          className="mt-4 px-8 py-3 bg-gradient-to-r from-green-600 to-teal-600 rounded-full text-white font-medium shadow-lg hover:shadow-xl transition-all"
+        >
+          <Users className="inline-block w-5 h-5 mr-2" />
+          Acessar CRM
+        </motion.button>
+
+
         {/* Ilustração estilizada */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

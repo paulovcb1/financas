@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5100/api';
+const API_URL = import.meta.env.VITE_API_URL
 
 export const createUser = async (userData: any) => {
     try {
@@ -87,4 +87,12 @@ export const checkPhoneNumber = async (phone: string) => {
       console.error('Erro ao verificar o telefone:', error);
       throw error; // Lança o erro para ser tratado na LandingPage
     }
+  };
+
+  export const fetchAllUsers = async () => {
+    const response = await fetch(`${API_URL}/users/All-users`);
+    if (!response.ok) {
+      throw new Error('Erro ao buscar usuários');
+    }
+    return response.json();
   };
