@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const API_URL = import.meta.env.VITE_API_URL
+
 export const useNormalizedInput = () => {
   const [loading, setLoading] = useState(false);
 
@@ -7,7 +9,7 @@ export const useNormalizedInput = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5100/api/normalize', {
+      const response = await fetch(`${API_URL}/normalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

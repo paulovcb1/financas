@@ -7,6 +7,7 @@ import Travel from './pages/Travel';
 import Sidebar from './components/sidebar/SideBar';
 import FinancialPlanning from './pages/FinancialPlaning';
 import {CRM} from './pages/CRM';
+import CreditCards from './pages/CreditCards';
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -37,6 +38,7 @@ const App: React.FC = () => {
           <Route path="/planning" element={<FinancialPlanning />} />
           {/* Rota para o CRM */}
           <Route path="/crm" element={<CRM />} />
+          <Route path="/credit-cards" element={<CreditCards />} />
           {/* Rota para página não encontrada (opcional) */}
           <Route path="*" element={<NotFound />} />
         </Routes>

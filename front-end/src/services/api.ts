@@ -96,3 +96,10 @@ export const checkPhoneNumber = async (phone: string) => {
     }
     return response.json();
   };
+
+  export const fetchCards = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await fetch(`${API_URL}/card/search?${query}`);
+  if (!response.ok) throw new Error('Erro ao buscar cartões');
+  return response.json();
+};

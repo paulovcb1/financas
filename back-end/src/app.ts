@@ -4,6 +4,7 @@ import userRoutes from './routes/userRoutes';
 import connectDB from './config/db';
 import dotenv from 'dotenv';
 import normalizeRoutes from './routes/normalizeRoutes';
+import cardsRoutes from './routes/cardsRoutes';
 
 dotenv.config();
 connectDB();
@@ -15,5 +16,6 @@ app.use(express.json());
 
 app.use('/api/users', userRoutes);
 app.use('/api/normalize', normalizeRoutes);
+app.use('/api/card', cardsRoutes);
 
 export default app;

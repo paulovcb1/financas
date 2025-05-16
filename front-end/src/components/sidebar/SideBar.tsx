@@ -2,12 +2,15 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, Plane, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { CreditCard } from 'lucide-react'; // Importando o ícone de cartão de crédito
 
 const Sidebar: React.FC = () => {
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
     { name: 'Viagens', path: '/travel', icon: <Plane className="w-5 h-5" /> },
     { name: 'Planejamento', path: '/planning', icon: <Target className="w-5 h-5" /> },
+    { name: 'Cartões', path: '/credit-cards', icon: <CreditCard className="w-5 h-5" /> },
+
   ];
 
   return (
