@@ -89,6 +89,7 @@ export const checkPhoneNumber = async (phone: string) => {
     }
   };
 
+
   export const fetchAllUsers = async () => {
     const response = await fetch(`${API_URL}/users/All-users`);
     if (!response.ok) {
@@ -98,8 +99,31 @@ export const checkPhoneNumber = async (phone: string) => {
   };
 
   export const fetchCards = async (params = {}) => {
-  const query = new URLSearchParams(params).toString();
-  const response = await fetch(`${API_URL}/card/search?${query}`);
-  if (!response.ok) throw new Error('Erro ao buscar cartões');
-  return response.json();
-};
+    const query = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_URL}/card/search?${query}`);
+    if (!response.ok) throw new Error('Erro ao buscar cartões');
+    return response.json();
+  }
+
+  export const selectedCard = async (userId: string, cardId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/card/user/select-card`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, cardId }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao selecionar cartão');
+      }
+  
+      return data;
+    } catch (error) {
+      console.error('Erro ao selecionar cartão:', error);
+      throw error;
+    }
+  }

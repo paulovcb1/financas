@@ -7,6 +7,7 @@ export interface IUser extends Document {
   monthlyIncome?: number;
   fixedExpenses?: number;
   variableExpenses?: number;
+  selectedCard?: string; 
   creditCard?: {
     uses: boolean;
     monthlySpending?: number;
@@ -24,6 +25,7 @@ const UserSchema = new Schema<IUser>({
     uses: { type: Boolean },
     monthlySpending: { type: Number },
   },
+  selectedCard: { type: mongoose.Schema.Types.ObjectId, ref: 'CreditCard', required: false },
 });
 
 export default mongoose.model<IUser>('User', UserSchema);

@@ -7,6 +7,7 @@ import { FormData } from '../types/dashboard';
 import { FinancialCard } from '../components/dashboard/FinancialCards';
 import { EditModal } from '../components/dashboard/EditModal';
 import { getUserData } from '../services/api'; // Importa a função para buscar os dados da API
+import Cookies from 'js-cookie';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const userId = localStorage.getItem('userId'); // Obtém o ID do usuário do localStorage
+        const userId = Cookies.get('userId'); 
         if (!userId) {
           navigate('/'); 
           return;

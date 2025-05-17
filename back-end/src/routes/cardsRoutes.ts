@@ -33,10 +33,31 @@ router.get('/search', async (req, res) => {
 
 // POST /api/user/select-card
 router.post('/user/select-card', async (req, res) => {
-  const { userId, cardId } = req.body;
+  try {
+    const { userId, cardId } = req.body;
 
-  await User.findByIdAndUpdate(userId, { selectedCard: cardId });
-  res.json({ success: true });
+    if (!userId || !cardId) {
+      return res.status(400).json({ success: false, message: 'Parâmetros obrigatórios ausentes.' });
+    }
+
+    const cardExists = await CreditCard.findById(cardId);
+    if (!cardExists) {
+      return res.status(404).json({ success: false, message: 'Cartão não encontrado.' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
+    }
+
+    user.selectedCard = cardId;
+    await user.save();
+
+    res.json({ success: true, message: 'Cartão selecionado com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao selecionar cartão:', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor.' });
+  }
 });
 
 export default router;
